@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"server/internal/configs"
+	"server/internal/helpers"
 
 	"github.com/twilio/twilio-go/rest/verify/v2"
 )
@@ -45,7 +46,15 @@ func sendOtp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//generate jwt token
+	token, err := helpers.GenarateJwtToken(phNum)
+	if err != nil {
+		http.Error(w, "Error generating JWT token", http.StatusInternalServerError)
+		return
+	}
+
 	//response with cookie
+	http.SetCookie(w, token)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OTP sent successfully"))
 }
